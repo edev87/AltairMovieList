@@ -1,88 +1,49 @@
-const getValues = () => {
-  let fizzVal = document.getElementById('fizz-value').value;
-  let buzzVal = document.getElementById('buzz-value').value;
-  let stopVal = document.getElementById('stop-value').value;
+const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhNzlhNjJiOTJhOWNhYzQ2M2M5NzhjZDA4OTUwYWUwZiIsInN1YiI6IjYwODVlZjczNTMyYWNiMDA1ODg3MWI2YSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ._HkCsGSbSSyz0cnITBswX3mgp7gwXhrQcc9t2abAnQQ'
+//https://api.themoviedb.org/3/movie/popular
 
-  let convertFizzValToNum = Number(fizzVal);
-  let convertBuzzValToNum = Number(buzzVal);
-  let convertStopValToNum = Number(stopVal);
 
-  if (convertFizzValToNum != 3 || convertBuzzValToNum != 5 ||
-    isNaN(convertFizzValToNum) || isNaN(convertBuzzValToNum)) {
+async function getMovies() {
+  //fetch returns a promise, which promises to return data
+  //await => for things that take a long time, so im going to wait for it to be done
+  //async function => might write code that will take a long time to execute
 
-    Swal.fire({
-      title: 'Oops!',
-      text: 'Fizz can only be 3. Buzz can only be 5. Try your inputs again.',
-      icon: 'error',
-      backdrop: false
-    });
+  try {
+    let response = await fetch('https://api.themoviedb.org/3/movie/popular',
+      {
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`
+        }
+      });
+
+    let data = await response.json();
+
+    return data;
+
+  } catch (error) {
+    console.error(error);
+
   }
-  else if (convertStopValToNum > 5000) {
-    Swal.fire({
-      title: 'Oops!',
-      text: 'The stop value cannot be greater than 5000',
-      icon: 'error',
-      backdrop: false
-    });
-  }
-
-  let passFizzBuzzCollection = generateFizzBuzz(convertFizzValToNum, convertBuzzValToNum, convertStopValToNum);
-
-  displayFizzBuzz(passFizzBuzzCollection, convertStopValToNum);
-
 
 }
 
-const generateFizzBuzz = (convertFizzValToNum, convertBuzzValToNum, convertStopValToNum) => {
-  let fizzBuzzNumbers = [];
- 
-  for (let i = 1; i <= convertStopValToNum; i++) {
+async function displayMovies() {
+  const movieListDiv = document.getElementById('movie-list');
+  const moviePosterTemplate = document.getElementById('movie-card-template');
 
-    if (i % 3 === 0 && i % 5 === 0) {
-      fizzBuzzNumbers.push("FizzBuzz")
-    } else if (i % 5 === 0) {
-      fizzBuzzNumbers.push("Buzz")
-    }
-    else if (i % 3 === 0) {
-      fizzBuzzNumbers.push("Fizz")
-    }
-    else {
-      fizzBuzzNumbers.push(i)
-    }
-  }
 
-  return fizzBuzzNumbers;
+  let data = await getMovies();
 
-}
+  let movies = data.results; //movies is an array of objects
 
-const displayFizzBuzz = (passFizzBuzzCollection) => {
-  let tableHtml = '';
+  movies.forEach(movie => {
+    let movieCard = moviePosterTemplate.content.cloneNode(true);
+    let titleElement = movieCard.querySelector('.card-body > h5');
+    titleElement.textContent = movie.title;
+    let descriptionElement = movieCard.querySelector('.card-body > p');
+    descriptionElement.textContent = movie.descriptionElement;
+    movieListDiv.appendChild(movieCard);
 
-  for (let i = 0; i < passFizzBuzzCollection.length; i++) {
-    let currentNumber = passFizzBuzzCollection[i];
-    let className = '';
-    if (currentNumber === "Fizz") {
-      className = "fizz text-light";
-    }
-    else if (currentNumber === "Buzz") {
-      className = "buzz text-light";
-    }
-    else if (currentNumber === "FizzBuzz") {
-      className = "fizzbuzz text-light";
-    }
-    else {
-      className = ""
-    }
+  });
 
-    let tableRowHtml = `<tr><td class="${className}"> ${currentNumber} </td></tr>`
-   
-    tableHtml += tableRowHtml;
-  }
+};
 
-  document.getElementById("results").innerHTML = tableHtml
-
-}
-
-const clearDisplay = () => {
-  document.getElementById("results").innerHTML = " ";
-}
