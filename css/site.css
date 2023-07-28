@@ -89,17 +89,3 @@ body {
   font-size: 4rem;
   padding-left: .5rem;
 }
-
-.fizz {
-  background-color: grey !important;
-}
-
-.buzz {
-  background-color: var(--ed-dark-color) !important;
-
-}
-
-.fizzbuzz {
-  background-color: orange !important;
-
-}
