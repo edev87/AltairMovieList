@@ -1,12 +1,6 @@
 const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhNzlhNjJiOTJhOWNhYzQ2M2M5NzhjZDA4OTUwYWUwZiIsInN1YiI6IjYwODVlZjczNTMyYWNiMDA1ODg3MWI2YSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ._HkCsGSbSSyz0cnITBswX3mgp7gwXhrQcc9t2abAnQQ'
-//https://api.themoviedb.org/3/movie/popular
-
 
 async function getMovies() {
-  //fetch returns a promise, which promises to return data
-  //await => for things that take a long time, so im going to wait for it to be done
-  //async function => might write code that will take a long time to execute so we use async on function
-
   try {
     let response = await fetch('https://api.themoviedb.org/3/movie/popular',
       {
@@ -55,7 +49,6 @@ async function showMovieDetails(btn) {
   let movieId = btn.getAttribute('data-movieId');
   document.getElementById("movie-modal-paragraph").textContent = movieId;
 
-
   try {
     let response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}`,
       {
@@ -73,8 +66,7 @@ async function showMovieDetails(btn) {
     document.getElementById('genres').textContent = data.genres[0].name + " " + "|" + " "
       + data.genres[1].name + "  " + "|" + " " + data.genres[2].name;
     document.getElementById('release-date').textContent = new Date(data.release_date).toLocaleDateString();
-    document.getElementById('movie-img').setAttribute("src", `https://image.tmdb.org/t/p/w500${data.poster_path}`)
-
+    document.getElementById('movie-img').setAttribute("src", `https://image.tmdb.org/t/p/w500${data.poster_path}`);
 
   } catch (error) {
     console.error(error);

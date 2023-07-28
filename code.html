@@ -69,30 +69,103 @@
       <div class="col-12 col-lg-8">
         <pre class="line-numbers">
           <code class="language-js">
-            function displayMessage(){
-              let inputBox = document.getElementById("message");
-              let message = inputBox.value
-            
-              Swal.fire(
-                {
-              backdrop: false,
-              title: 'App Name',
-              text: message
-                }
-                );
-            
-            }
+            const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhNzlhNjJiOTJhOWNhYzQ2M2M5NzhjZDA4OTUwYWUwZiIsInN1YiI6IjYwODVlZjczNTMyYWNiMDA1ODg3MWI2YSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ._HkCsGSbSSyz0cnITBswX3mgp7gwXhrQcc9t2abAnQQ'
+
+async function getMovies() {
+  try {
+    let response = await fetch('https://api.themoviedb.org/3/movie/popular',
+      {
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`
+        }
+      });
+
+    let data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function displayMovies() {
+  const movieListDiv = document.getElementById('movie-list');
+  const moviePosterTemplate = document.getElementById('movie-card-template');
+
+  let data = await getMovies();
+
+  let movies = data.results; //movies is an array of objects
+
+  movies.forEach(movie => {
+    let movieCard = moviePosterTemplate.content.cloneNode(true);
+    let titleElement = movieCard.querySelector('.card-body > h5');
+    titleElement.textContent = movie.title;
+    let descriptionElement = movieCard.querySelector('p.card-text');
+    descriptionElement.textContent = movie.overview;
+    let movieImgElement = movieCard.querySelector('.card img');
+    movieImgElement.setAttribute("src", `https://image.tmdb.org/t/p/w500${movie.poster_path}`)
+    let infoBtn = movieCard.querySelector('button.btn');
+    infoBtn.setAttribute('data-movieId', movie.id)
+    movieListDiv.appendChild(movieCard);
+  });
+};
+
+async function showMovieDetails(btn) {
+  let movieModal = document.getElementById('movie-modal');
+  let movieId = btn.getAttribute('data-movieId');
+  document.getElementById("movie-modal-paragraph").textContent = movieId;
+
+  try {
+    let response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`
+        }
+      });
+
+    let data = await response.json();
+
+    document.getElementById('modal-title').textContent = data.original_title;
+    document.getElementById('movie-modal-paragraph').textContent = data.overview;
+    document.getElementById('popularity').textContent = data.popularity;
+    document.getElementById('status').textContent = data.status;
+    document.getElementById('genres').textContent = data.genres[0].name + " " + "|" + " "
+      + data.genres[1].name + "  " + "|" + " " + data.genres[2].name;
+    document.getElementById('release-date').textContent = new Date(data.release_date).toLocaleDateString();
+    document.getElementById('movie-img').setAttribute("src", `https://image.tmdb.org/t/p/w500${data.poster_path}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
           </code>
         </pre>
 
 
       </div>
       <div class="col-12 col-lg-4">
-        <p>The code is structured in one function</p>
-        <h5>displayMessage</h5>
-        <p>Shows a SweetAlert with the value of the <code>
-          message
+        <p>The code is structured in three functions</p>
+        <h5>getMovies()</h5>
+        <p> <code>getMovies()</code> is a <code>async</code> function that makes a <code>GET</code>
+          call to the TMDB API in order to return a list movies to display on the page.
         </code> variable</p>
+
+        <h5>displayMovies()</h5>
+        <p> <code>displayMovies()</code> is a function that uses the data 
+          fetched in the <code>GET</code> API call from <code>getMovies()</code>.
+        </code> Once the data is recieved, a <code>forEach()</code> is used to loop 
+      through the data object and that object is used to build the <code>template</code> element that
+    holds different HTML elements to display the movie and information about that movie. In addtion
+  to building the different HTML elements with data from the object, a custom attriubute is set on the 
+<code>button</code> in order to be used by the <code>showMOvieDetails(btn)</code> function.   </p>
+        
+        <h5>showMovieDetails(btn)</h5>
+        <p> <code>showMovieDetails(btn)</code> is a <code>async</code> fucntion that takes a <code>button</code> as a parameter.
+          From this parameter, the custom attribute <code>data-moiveId</code> is used in the 
+          <code>GET</code> API call in order to return details about a particular movie.
+          Once the data is recieved, that data is used to build the movie modal which will display more 
+          details about the movie once the more info <code>button</code> is clicked.
+        </p>
 
       </div>
     </div>
